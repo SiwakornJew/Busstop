@@ -1,0 +1,139 @@
+
+{
+"code" :  200,
+"message" : "ok",
+"plan" : [
+{
+"seq_id" : 1,
+"travel_type" : 1,
+"travel_name" : "bus",
+"travel_time_sec" : 1200 ,
+"travel_distance_m" : 129 ,
+"route" : {
+"route_id": 1064,
+"route_name": "8",
+"start_busstop_id": 200231,
+"start_busstop_name_th": "ลาดกระบัง102",
+"start_busstop_name_en": "ladkrabang102",
+"end_busstop_id": 1192,
+"end_busstop_name_th": "หมอชิต",
+"end_busstop_name_en": "morchit"
+},
+"take_at_busstop" : {
+"busstop_id" : 200300,
+"busstop_name_th": "ลาดกระบัง150",
+"busstop_name_en": "ladkrabang150",
+"busstop_lat" : 14.052310,
+"busstop_lon": 100.869737
+},
+"getoff_at_busstop" : {
+"busstop_id" : 200301,
+"busstop_name_th": "ลาดกระบัง155",
+"busstop_name_en": "ladkrabang155",
+"busstop_lat" : 14.052310,
+"busstop_lon": 100.869737
+},
+"from_place" : null,
+"to_place" : null,
+"polyline" : [{
+"line_lat": 14.022310,
+"line_lon": 100.869237
+},{
+"line_lat": 14.022311,
+"line_lon": 100.869233
+},{
+"line_lat": 14.052310,
+"line_lon": 100.869737
+},{
+"line_lat": 14.022760,
+"line_lon": 100.869657
+}]
+},
+{
+"seq_id" : 2,
+"travel_type" : 2,
+"travel_name" : "walk",
+"travel_time_sec" : 1000 ,
+"travel_distance_m" : 21 ,
+"route" : null,
+"take_at_busstop" : null,
+"getoff_at_busstop" : null,
+"from_place" : {
+"place_id" : null,
+"place_name_th" : "สถานที่ 1",
+"place_name_en" : "place 1",
+"place_lat" : 14.052310,
+"place_lon" : 100.869737
+},
+"to_place" : {
+"place_id" : null,
+"place_name_th" : "สถานที่ 2",
+"place_name_en" : "place 2",
+"place_lat" : 14.052310,
+"place_lon" : 100.869737
+},
+"polyline" : null
+},
+{
+"seq_id" : 3,
+"travel_type" : 3,
+"travel_name" : "car",
+"travel_time_sec" : 2100 ,
+"travel_distance_m" : 210 ,
+"route" : null,
+"take_at_busstop" : null,
+"getoff_at_busstop" : null,
+"from_place" : {
+"place_id" : null,
+"place_name_th" : "สถานที่ 3",
+"place_name_en" : "place 3",
+"place_lat" : 14.052310,
+"place_lon" : 100.869737
+},
+"to_place" : {
+"place_id" : null,
+"place_name_th" : "สถานที่ 4",
+"place_name_en" : "place 4",
+"place_lat" : 14.052310,
+"place_lon" : 100.869737
+},
+"polyline" : [{
+"line_lat": 14.022310,
+"line_lon": 100.869237
+},{
+"line_lat": 14.022311,
+"line_lon": 100.869233
+},{
+"line_lat": 14.052310,
+"line_lon": 100.869737
+},{
+"line_lat": 14.022760,
+"line_lon": 100.869657
+}]
+},
+{
+"seq_id" : 4,
+"travel_type" : 4,
+"travel_name" : "boat",
+"travel_time_sec" : 210 ,
+"travel_distance_m" : 270 ,
+"route" : null,
+"take_at_busstop" : null,
+"getoff_at_busstop" : null,
+"from_place" : {
+"place_id" : null,
+"place_name_th" : "สถานที่ 5",
+"place_name_en" : "place 5",
+"place_lat" : 14.052310,
+"place_lon" : 100.869737
+},
+"to_place" : {
+"place_id" : null,
+"place_name_th" : "สถานที่ 6",
+"place_name_en" : "place 6",
+"place_lat" : 14.052310,
+"place_lon" : 100.869737
+},
+"polyline" : null
+}]
+}
