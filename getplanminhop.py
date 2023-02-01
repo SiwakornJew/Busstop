@@ -6,6 +6,8 @@ app = Flask(__name__)
 @app.route("/getplanminhop", methods=['GET'])
 def hello_world():
     try:
+
+        print(data)
         json_data = request.get_json()
         if json_data['app_key'] != "1256953732aD24v":
             print(json_data['app_key'])
@@ -13,6 +15,6 @@ def hello_world():
                             status=404)
         da = open('mockdata.json')
         data = json.load(da)
-        return Response(data + "ok", status=200)
+        return data
     except Exception as error:
         return Response("Data is not found", status=404)
