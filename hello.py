@@ -3,7 +3,7 @@ from flask import Flask, request, json, Response
 app = Flask(__name__)
 
 
-@app.route("/find", methods=['GET'])
+@app.route("/getplanminhop", methods=['GET'])
 def hello_world():
     try:
         json_data = request.get_json()
