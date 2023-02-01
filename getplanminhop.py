@@ -11,7 +11,7 @@ def hello_world():
             print(json_data['app_key'])
             return Response(json_data['app_key'] + "is not app key",
                             status=404)
-        da = open('mockdat.json')
+        da = open('mockdata.json')
         data = json.load(da)
         return Response(data + "ok", status=200)
     except Exception as error:
