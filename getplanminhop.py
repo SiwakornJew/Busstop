@@ -4,6 +4,7 @@ app = Flask(__name__)
 
 
 @app.route("/getplanminhop", methods=['GET'])
+@app.route("/getplanmintime", methods=['GET'])
 def getplanminhop():
     try:
         da = open('mockdata.json')
