@@ -1,6 +1,9 @@
 from flask import Flask, request, json, Response
 
 app = Flask(__name__)
+
+
+@app.route("/getplanminhop", methods=['GET'])
 def getplanminhop():
     try:
         da = open('mockdata.json')
@@ -13,6 +16,3 @@ def getplanminhop():
         return data
     except Exception as error:
         return Response("Data is not found", status=404)
-
-@app.route("/getplanminhop", methods=['GET'])(getplanminhop)
-
