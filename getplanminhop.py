@@ -5,8 +5,11 @@ app = Flask(__name__)
 
 @app.route("/getplanminhop", methods=['GET'])
 def getplanminhop():
-    json_data = request.get_json()
-    output = getroute(json_data['start_lat'], json_data['start_lon'],
-                      json_data['destination_lat'], json_data['destination_lon'])
+    try:
+        json_data = request.get_json()
+        output = getroute(json_data['start_lat'], json_data['start_lon'],
+                          json_data['destination_lat'], json_data['destination_lon'])
 
-    return json.loads(json.dumps(output))
+        return json.loads(json.dumps(output))
+    except Exception as error:
+        return Response("Data is not found", status=404)
