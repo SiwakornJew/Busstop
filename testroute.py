@@ -49,9 +49,9 @@ def getroute(start_lat, start_lon, destination_lat, destination_lon):
         i = bisect.bisect_left(sorted_list, elem)
         return i != len(sorted_list) and sorted_list[i] == elem
 
-    route_path = 'https://raw.githubusercontent.com/SiwakornJew/dataforwork/main/route_stations(full).csv'
-    bus_path = 'https://raw.githubusercontent.com/SiwakornJew/dataforwork/main/bus_routes.csv'
-    bus_stop = 'https://raw.githubusercontent.com/SiwakornJew/dataforwork/main/busstops-dat.csv'
+    route_path = 'data/route_stations(full).csv'
+    bus_path = 'data/bus_routes.csv'
+    bus_stop = 'data/busstops-dat.csv'
     route_station = pd.read_csv(route_path)
     bus_route = pd.read_csv(bus_path)
     bstops = pd.read_csv(bus_stop)
