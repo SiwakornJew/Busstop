@@ -231,7 +231,7 @@ def getroute(start_lat, start_lon, destination_lat, destination_lon):
     # seq_1
     seq_1 = {"seq_id": 1, "travel_type": 2, "travel_name": "walk", "travel_distance_m": 10, "route": None,
              "take_at_busstop": None, "getoff_at_busstop": None, "from_place": from_place_1, "to_place": to_place_1, "polyline": None}
-    seq_2 = {"seq_id": 2, "travel_type": 1, "travel_name": "bus", "travel_distance_m": distance, "route": route, "take_at_busstop": startBusStop_data,
+    seq_2 = {"seq_id": 2, "travel_type": 1, "travel_name": "bus", "travel_distance_m": 10, "route": route, "take_at_busstop": startBusStop_data,
              "getoff_at_busstop": endBusStop_data, "from_place": None, "to_place": None, "polyline": main_polyline_list}
     seq_3 = {"seq_id": 1, "travel_type": 2, "travel_name": "walk", "travel_distance_m": 10, "route": None,
              "take_at_busstop": None, "getoff_at_busstop": None, "from_place": from_place_2, "to_place": to_place_2, "polyline": None}
