@@ -1,0 +1,58 @@
+#####################################
+##            NAMESPACES           ##
+#####################################
+
+@prefix tc: <http://transline.org/terms/> .
+@prefix sta: <http://transline.org/stations/> .
+@prefix line: <http://transline.org/lines/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+#####################################
+##        TRANSLINE TERMS          ##
+#####################################
+
+tc:PlanItem rdfs:label "Plan Item" ;
+            rdfs:comment  "Potential Item in a Route Plan" .
+
+tc:walk rdf:type tc:PlanItem, owl:SymmetricProperty ;
+        rdfs:label "walk"@en .
+
+#####################################
+##      APPLICATION ONTOLOGY       ##
+#####################################
+
+
+
+line:bus_8_gt   rdf:type  tc:PlanItem, owl:TransitiveProperty .
+line:bus_8_bt   rdf:type  tc:PlanItem, owl:TransitiveProperty .
+line:bus_519_gt   rdf:type  tc:PlanItem, owl:TransitiveProperty .
+line:bus_519_bt   rdf:type  tc:PlanItem, owl:TransitiveProperty .
+line:bus_1_gt   rdf:type  tc:PlanItem, owl:TransitiveProperty .
+line:bus_1_bt   rdf:type  tc:PlanItem, owl:TransitiveProperty .
+line:bus_1-18_gt   rdf:type  tc:PlanItem, owl:TransitiveProperty .
+line:bus_1-18_bt   rdf:type  tc:PlanItem, owl:TransitiveProperty .
+line:bus_1-13_gt   rdf:type  tc:PlanItem, owl:TransitiveProperty .
+line:bus_1-13_bt   rdf:type  tc:PlanItem, owl:TransitiveProperty .
+line:bus_169_gt   rdf:type  tc:PlanItem, owl:TransitiveProperty .
+line:bus_169_bt   rdf:type  tc:PlanItem, owl:TransitiveProperty .
+line:bus_171_gt   rdf:type  tc:PlanItem, owl:TransitiveProperty .
+line:bus_171_bt   rdf:type  tc:PlanItem, owl:TransitiveProperty .
+
+
+
+line:bus_8_g rdfs:subPropertyOf line:bus_8_gt .
+line:bus_8_b rdfs:subPropertyOf line:bus_8_bt .
+line:bus_519_g rdfs:subPropertyOf line:bus_519_gt .
+line:bus_519_b rdfs:subPropertyOf line:bus_519_bt .
+line:bus_1_g rdfs:subPropertyOf line:bus_1_gt .
+line:bus_1_b rdfs:subPropertyOf line:bus_1_bt .
+line:bus_1-18_g rdfs:subPropertyOf line:bus_1-18_gt .
+line:bus_1-18_b rdfs:subPropertyOf line:bus_1-18_bt .
+line:bus_1-13_g rdfs:subPropertyOf line:bus_1-13_gt .
+line:bus_1-13_b rdfs:subPropertyOf line:bus_1-13_bt .
+line:bus_169_g rdfs:subPropertyOf line:bus_169_gt .
+line:bus_169_b rdfs:subPropertyOf line:bus_169_bt .
+line:bus_171_g rdfs:subPropertyOf line:bus_171_gt .
+line:bus_171_b rdfs:subPropertyOf line:bus_171_bt .
