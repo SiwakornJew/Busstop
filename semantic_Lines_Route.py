@@ -58,6 +58,99 @@ def _genSparql(src="", des="", num_lines=1, show_stations=False):
     return "SELECT DISTINCT " + select + " WHERE { " + con1 + con2 + con3 + " } " + "LIMIT 1"
 
 
+def _formatBusResponse(seq, timeTravel, takeAt, getOffAt, reshaped_ansline):
+    return {
+        "seq": seq,
+        "travel_type": 2,
+        "travel_time_name": "bus",
+        "travel_time_sec": timeTravel,
+        "travel_distance_m": 100,
+        "route": {
+            "route_id": takeAt['path_id'],
+            "route_name": takeAt['route_id'],
+            "start_busstop_name_th": takeAt['sname'],
+            "start_busstop_name_en": takeAt['name_e'],
+            "end_busstop_id": getOffAt['sid'],
+            "end_busstop_name_th": getOffAt['sname'],
+            "end_busstop_name_en": getOffAt['name_e'],
+        },
+        "take_at_busstop": {
+            "busstop_id": takeAt['sid'],
+            "busstop_name_th": takeAt['sname'],
+            "busstop_name_en": takeAt['name_e'],
+            "busstop_lat": takeAt['lat'],
+            "busstop_lon": takeAt['lon'],
+        },
+        "getoff_at_busstop": {
+            "busstop_id": getOffAt['sid'],
+            "busstop_name_th": getOffAt['sname'],
+            "busstop_name_en": getOffAt['name_e'],
+            "busstop_lat": getOffAt['lat'],
+            "busstop_lon": getOffAt['lon'],
+        },
+        "from_place": None,
+        "to_place": None,
+        "polyline": reshaped_ansline
+    }
+
+
+def _formatWalkResponse(seq, timeTravel, from_place=None, to_place=None, start_lat=None, start_lon=None):
+    if from_place is not None:
+        return {
+            "seq": seq,
+            "travel_type": 1,
+            "travel_time_name": "walk",
+            "travel_time_sec": timeTravel,
+            "travel_distance_m": 100,
+            "route": None,
+            "take_at_busstop": None,
+            "getoff_at_busstop": None,
+            "from_place": {
+                "place_id": from_place['sid'],
+                "place_name_th": from_place['sname'],
+                "place_name_en": from_place['name_e'],
+                "place_lat": from_place['lat'],
+                "place_lon": from_place['lon'],
+            },
+            "to_place": {
+                "place_id": to_place['sid'],
+                "place_name_th": to_place['sname'],
+                "place_name_en": to_place['name_e'],
+                "place_lat": to_place['lat'],
+                "place_lon": to_place['lon'],
+            },
+            "polyline": None
+
+        }
+    elif start_lat and start_lon is not None:
+        return {
+            "seq": seq,
+            "travel_type": 1,
+            "travel_time_name": "walk",
+            "travel_time_sec": timeTravel,
+            "travel_distance_m": 100,
+            "route": None,
+            "take_at_busstop": None,
+            "getoff_at_busstop": None,
+            "from_place": {
+                "place_id": None,
+                "place_name_th": "จุดเริ่มต้น",
+                "place_name_en":  "Start Point",
+                "place_lat": start_lat,
+                "place_lon":  start_lon,
+            },
+            "to_place": {
+                "place_id": to_place['sid'],
+                "place_name_th": to_place['sname'],
+                "place_name_en": to_place['name_e'],
+                "place_lat": to_place['lat'],
+                "place_lon": to_place['lon'],
+            },
+            "polyline": None
+
+        }
+
+
 def findMinHop(start, des, loaded_graph_rdf):
     hop = 3
     max_hops = 4
@@ -255,93 +348,24 @@ def getRoute(start_lat, start_lon, destination_lat, destination_lon):
             timeTravel = random.randint(5, 10)*60
             if index == 0 and key != TravelType.Walk.value:
                 if index == 0:
-                    plan = {
-                        "seq": seq,
-                        "travel_type": 1,
-                        "travel_time_name": "walk",
-                        "travel_time_sec": timeTravel,
-                        "travel_distance_m": 100,
-                        "route": None,
-                        "take_at_busstop": None,
-                        "getoff_at_busstop": None,
-                        "from_place": {
-                            "place_id": None,
-                            "place_name_th": "จุดเริ่มต้น",
-                            "place_name_en": "Start Point",
-                            "place_lat": start_lat,
-                            "place_lon": start_lon
-                        },
-                        "to_place": {
-                            "place_id": closest_startpoint['sid'],
-                            "place_name_th": closest_startpoint['sname'],
-                            "place_name_en": closest_startpoint['name_e'],
-                            "place_lat": closest_startpoint['lat'],
-                            "place_lon": closest_startpoint['lon']
-                        },
-                        "polyline": None
-                    }
+                    plan = _formatWalkResponse(
+                        seq, timeTravel, start_lat=start_lat, start_lon=start_lon, to_place=closest_startpoint)
                     planPath.append(plan)
+                    print(plan)
                     seq += 1
 
             elif key == TravelType.Walk.value and index > 1:
                 from_place = seqPath[index+1][TravelType.Bus.value].iloc[-1]
                 to_place = seqPath[index-1][TravelType.Bus.value].iloc[0]
-                plan = {
-                    "seq": seq,
-                    "travel_type": 1,
-                    "travel_time_name": "walk",
-                    "travel_time_sec": timeTravel,
-                    "travel_distance_m": 100,
-                    "route": None,
-                    "take_at_busstop": None,
-                    "getoff_at_busstop": None,
-                    "from_place": {
-                        "place_id": from_place['sid'],
-                        "place_name_th": from_place['sname'],
-                        "place_name_en": from_place['name_e'],
-                        "place_lat": from_place['lat'],
-                        "place_lon": from_place['lon']
-                    },
-                    "to_place": {
-                        "place_id": to_place['sid'],
-                        "place_name_th": to_place['sname'],
-                        "place_name_en": to_place['name_e'],
-                        "place_lat": to_place['lat'],
-                        "place_lon": to_place['lon'],
-                    },
-                    "polyline": None
-
-                }
+                plan = _formatWalkResponse(
+                    seq, timeTravel, from_place=from_place, to_place=to_place)
                 planPath.append(plan)
                 seq += 1
 
             elif key == TravelType.Walk.value:
                 to_place = seqPath[index+1][TravelType.Bus.value].iloc[0]
-                plan = {
-                    "seq": seq,
-                    "travel_type": 1,
-                    "travel_time_name": "walk",
-                    "travel_time_sec": timeTravel,
-                    "travel_distance_m": 100,
-                    "route": None,
-                    "take_at_busstop": None,
-                    "getoff_at_busstop": None,
-                    "from_place": {
-                        "place_id": None,
-                        "place_name_th": "จุดเริ่มต้น",
-                        "place_name_en": "Start Point",
-                        "place_lat": start_lat,
-                        "place_lon": start_lon
-                    },
-                    "to_place": {
-                        "place_id": to_place['sid'],
-                        "place_name_th": to_place['sname'],
-                        "place_name_en": to_place['name_e'],
-                        "place_lat": to_place['lat'],
-                        "place_lon": to_place['lon'],
-                    },
-                    "polyline": None
-                }
+                plan = _formatWalkResponse(
+                    seq, timeTravel, to_place=to_place, start_lat=start_lat, start_lon=start_lon)
                 planPath.append(plan)
                 seq += 1
 
@@ -351,47 +375,14 @@ def getRoute(start_lat, start_lon, destination_lat, destination_lon):
                 getOffAt = busPlan.iloc[-1]
                 _polyLine = busPlan[['lat', 'lon']].astype(
                     float).values.tolist()
-                polyLine = [{"line_lat": lat, "line_lon": lon}
-                            for lat, lon in _polyLine]
                 for i in _polyLine:
                     ansline.append(i)
 
                 reshaped_ansline = reshape_ansline_to_rpath(
                     takeAt['route_id'], ansline)
                 route_ansLines[takeAt['route_id']] = reshaped_ansline
-                plan = {
-                    "seq": seq,
-                    "travel_type": 2,
-                    "travel_time_name": "bus",
-                    "travel_time_sec": timeTravel,
-                    "travel_distance_m": 100,
-                    "route": {
-                        "route_id": takeAt['path_id'],
-                        "route_name": takeAt['route_id'],
-                        "start_busstop_name_th": takeAt['sname'],
-                        "start_busstop_name_en": takeAt['name_e'],
-                        "end_busstop_id": getOffAt['sid'],
-                        "end_busstop_name_th": getOffAt['sname'],
-                        "end_busstop_name_en": getOffAt['name_e'],
-                    },
-                    "take_at_busstop": {
-                        "busstop_id": takeAt['sid'],
-                        "busstop_name_th": takeAt['sname'],
-                        "busstop_name_en": takeAt['name_e'],
-                        "busstop_lat": takeAt['lat'],
-                        "busstop_lon": takeAt['lon'],
-                    },
-                    "getoff_at_busstop": {
-                        "busstop_id": getOffAt['sid'],
-                        "busstop_name_th": getOffAt['sname'],
-                        "busstop_name_en": getOffAt['name_e'],
-                        "busstop_lat": getOffAt['lat'],
-                        "busstop_lon": getOffAt['lon'],
-                    },
-                    "from_place": None,
-                    "to_place": None,
-                    "polyline": reshaped_ansline
-                }
+                plan = _formatBusResponse(seq, timeTravel,
+                                          takeAt, getOffAt, reshaped_ansline)
                 planPath.append(plan)
                 seq += 1
                 ansline = []
