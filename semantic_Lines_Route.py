@@ -1,7 +1,6 @@
 
 import pandas as pd
-from rdflib import Graph
-from rdflib.namespace import CSVW, DC, DCAT, DCTERMS, DOAP, FOAF, ODRL2, ORG, OWL, PROF, PROV, RDF, RDFS, SDO, SH, SKOS, SOSA, SSN, TIME, VOID, XMLNS, XSD
+from rdflib.namespace import RDF, RDFS
 import re
 from enum import Enum
 from flask import json
@@ -152,8 +151,8 @@ def _formatWalkResponse(seq, timeTravel, from_place=None, to_place=None, start_l
 
 
 def findMinHop(start, des, loaded_graph_rdf):
-    hop = 3
-    max_hops = 4
+    hop = 1
+    max_hops = 2
     source_node = f"sta:busnode_{start}"
     target_node = f"sta:busnode_{des}"
     found_result = False
@@ -217,7 +216,7 @@ def reshape_ansline_to_rpath(routeId, lines):
     return reshaped_ansline
 
 
-def getRoute(start_lat, start_lon, destination_lat, destination_lon):
+def getRoute(start_lat, start_lon, destination_lat, destination_lon, busGraph):
     seq = 1
     firstTime = True
     seqPath = []
@@ -225,23 +224,17 @@ def getRoute(start_lat, start_lon, destination_lat, destination_lon):
 
     _mainRoutes = "data/csv/mainRoutes.csv"
     mainRoutes = pd.read_csv(_mainRoutes)
-
     mainRoutes['distance_to_start'] = _findDistanceTH(
         start_lat, start_lon, mainRoutes['lat'], mainRoutes['lon'])
     mainRoutes['distance_to_destination'] = _findDistanceTH(
         destination_lat, destination_lon, mainRoutes['lat'], mainRoutes['lon'])
-
-    loaded_graph_rdf = Graph()
-    loaded_graph_rdf.parse(
-        "data/graph/Inferred_knowledge_graph.rdf", format="xml")
-
     closest_startpoint = mainRoutes.loc[mainRoutes['distance_to_start'].idxmin(
     )]
     closest_destinationpoint = mainRoutes.loc[mainRoutes['distance_to_destination'].idxmin(
     )]
-    minHops = findMinHop(closest_startpoint["sid"],
-                         closest_destinationpoint["sid"], loaded_graph_rdf)
 
+    minHops = findMinHop(closest_startpoint["sid"],
+                         closest_destinationpoint["sid"], busGraph)
     for i in range(len(minHops)):
         if minHops[i].startswith("bus_"):
             busNumber = re.search(r'\d+', minHops[i]).group()
@@ -250,8 +243,10 @@ def getRoute(start_lat, start_lon, destination_lat, destination_lon):
                     mainRoutes['route_id'] == str(busNumber))]
 
                 if firstTime:
-                    busStop = re.search(r'\d+', minHops[i+1]).group()
-
+                    try:
+                        busStop = re.search(r'\d+', minHops[i+1]).group()
+                    except:
+                        busStop = re.search(r'\d+', minHops[i-1]).group()
                     nameEng = mainRoutes.loc[mainRoutes['sid'] == int(
                         busStop), 'name_e'].values[0]
                     seqEnd = mainGo.loc[(
@@ -260,14 +255,15 @@ def getRoute(start_lat, start_lon, destination_lat, destination_lon):
                         mainRoutes['seq'] <= seqEnd)]
                     firstTime = False
                     seqPath.append({1: path})
-
                 elif i == len(minHops)-1:
                     busStop = re.search(r'\d+', minHops[i-1]).group()
 
                     nameEng = mainRoutes.loc[mainRoutes['sid'] == int(
                         busStop), 'name_e'].values[0]
+
                     seqStart = mainGo.loc[(mainGo['name_e']
                                            == nameEng), 'seq'].values[0]
+
                     seqEnd = mainGo.loc[(mainGo['name_e']
                                          == closest_destinationpoint['name_e']), 'seq'].values[0]
 
@@ -283,19 +279,22 @@ def getRoute(start_lat, start_lon, destination_lat, destination_lon):
                         busStopHead), 'name_e'].values[0]
                     nameEngTail = mainRoutes.loc[mainRoutes['sid'] == int(
                         busStopTail), 'name_e'].values[0]
-                    seqStart = mainBack.loc[(mainBack['name_e']
-                                             == nameEngHead), 'seq'].values[0]
-                    seqEnd = mainBack.loc[(mainBack['name_e']
-                                           == nameEngTail), 'seq'].values[0]
-                    path = mainBack[(mainBack['seq']
-                                     >= seqStart) & (mainRoutes['seq'] <= seqEnd)]
+                    seqStart = mainGo.loc[(mainGo['name_e']
+                                           == nameEngHead), 'seq'].values[0]
+                    seqEnd = mainGo.loc[(mainGo['name_e']
+                                         == nameEngTail), 'seq'].values[0]
+                    path = mainGo[(mainGo['seq']
+                                   >= seqStart) & (mainRoutes['seq'] <= seqEnd)]
                     seqPath.append({1: path})
 
             elif minHops[i].endswith("_bt"):
                 mainBack = mainRoutes[(
                     mainRoutes['direction'] == 'back') & (mainRoutes['route_id'] == str(busNumber))]
                 if firstTime:
-                    busStop = re.search(r'\d+', minHops[i+1]).group()
+                    try:
+                        busStop = re.search(r'\d+', minHops[i+1]).group()
+                    except:
+                        busStop = re.search(r'\d+', minHops[i-1]).group()
                     nameEng = mainRoutes.loc[mainRoutes['sid'] == int(
                         busStop), 'name_e'].values[0]
                     seqStart = mainBack.loc[(mainBack['name_e']
@@ -311,36 +310,35 @@ def getRoute(start_lat, start_lon, destination_lat, destination_lon):
                     busStop = re.search(r'\d+', minHops[i-1]).group()
                     nameEng = mainRoutes.loc[mainRoutes['sid'] == int(
                         busStop), 'name_e'].values[0]
-                    seqStart = mainGo.loc[(mainGo['name_e']
-                                           == nameEng), 'seq'].values[0]
-                    seqEnd = mainGo.loc[(mainGo['name_e']
-                                         == closest_destinationpoint['name_e']), 'seq'].values[0]
-                    path = mainGo[(mainRoutes['seq'] <= seqEnd) & (
-                        mainGo['seq'] >= seqStart)]
+                    seqStart = mainBack.loc[(mainBack['name_e']
+                                             == nameEng), 'seq'].values[0]
+                    seqEnd = mainBack.loc[(mainBack['name_e']
+                                           == closest_destinationpoint['name_e']), 'seq'].values[0]
+                    path = mainBack[(mainRoutes['seq'] <= seqEnd) & (
+                        mainBack['seq'] >= seqStart)]
                     seqPath.append({1: path})
 
                 else:
                     busStopHead = re.search(r'\d+', minHops[i+1]).group()
                     busStopTail = re.search(r'\d+', minHops[i-1]).group()
-
-                    timeTravel.findTravelTime(busStopHead, busStopTail)
+                    # timeTravel.findTravelTime(busStopHead, busStopTail)
 
                     nameEngHead = mainRoutes.loc[mainRoutes['sid'] == int(
                         busStopHead), 'name_e'].values[0]
                     nameEngTail = mainRoutes.loc[mainRoutes['sid'] == int(
                         busStopTail), 'name_e'].values[0]
-                    seqStart = mainBack.loc[(mainBack['name_e']
-                                             == nameEngHead), 'seq'].values[0]
                     seqEnd = mainBack.loc[(mainBack['name_e']
-                                           == nameEngTail), 'seq'].values[0]
+                                           == nameEngHead), 'seq'].values[0]
+                    seqStart = mainBack.loc[(mainBack['name_e']
+                                             == nameEngTail), 'seq'].values[0]
+
                     path = mainBack[(mainBack['seq']
                                      >= seqStart) & (mainRoutes['seq'] <= seqEnd)]
-
                     seqPath.append({1: path})
 
         elif minHops[i].startswith("walk"):
-
             seqPath.append({2: "walk"})
+
     ansline = []
     route_ansLines = {}
     for index in range(len(seqPath)):
@@ -351,7 +349,6 @@ def getRoute(start_lat, start_lon, destination_lat, destination_lon):
                     plan = _formatWalkResponse(
                         seq, timeTravel, start_lat=start_lat, start_lon=start_lon, to_place=closest_startpoint)
                     planPath.append(plan)
-                    print(plan)
                     seq += 1
 
             elif key == TravelType.Walk.value and index > 1:
@@ -369,7 +366,7 @@ def getRoute(start_lat, start_lon, destination_lat, destination_lon):
                 planPath.append(plan)
                 seq += 1
 
-            elif key == TravelType.Bus.value:
+            if key == TravelType.Bus.value:
                 busPlan = seqPath[index][key]
                 takeAt = busPlan.iloc[0]
                 getOffAt = busPlan.iloc[-1]
